@@ -1,0 +1,9 @@
+numpy==1.26.4
+opencv-python
+pytesseract
+pillow
+selenium==4.10.0
+webdriver-manager
+apache-airflow-providers-postgres
+psycopg2-binary==2.9.9
+dbt-redshift

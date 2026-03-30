@@ -1,0 +1,28 @@
+name: Deploy to Airflow via Git Pull
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.AIRFLOW_SSH_PRIVATE_KEY }}
+      
+      - name: Add SSH known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.BASTION_HOST_PUBLIC_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          
+      - name: Deploy to Airflow EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              -J ec2-user@${{ secrets.BASTION_HOST_PUBLIC_IP }} \
+              ubuntu@${{ secrets.AIRFLOW_EC2_PRIVATE_IP }} \
+              'cd /home/ubuntu/CatchData-Airflow && git pull origin main'
